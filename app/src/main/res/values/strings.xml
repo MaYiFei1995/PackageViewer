@@ -1,3 +1,13 @@
 <resources>
     <string name="app_name">PackageViewer</string>
+    <string name="options">选项</string>
+    <string name="other">其它</string>
+    <string name="search">搜索</string>
+    <string name="orderBy">排序</string>
+    <string name="name">按名称</string>
+    <string name="installDate">按更新时间</string>
+    <string name="showSystemApp">显示系统APP</string>
+    <string name="showRelease">显示release</string>
+    <string name="showDebug">显示debug</string>
+    <string name="about">关于</string>
 </resources>

@@ -3,13 +3,14 @@
     package="com.mai.packageviewer">
 
     <application
-        android:allowBackup="true"
+        android:name=".App"
+        android:allowBackup="false"
         android:icon="@drawable/archive_search"
         android:label="@string/app_name"
         android:roundIcon="@drawable/archive_search"
         android:supportsRtl="true"
         android:theme="@style/Theme.PackageViewer">
-        <activity android:name=".MainActivity">
+        <activity android:name=".activity.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

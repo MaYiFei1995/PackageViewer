@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/app_bar_search"
+        android:icon="@drawable/ic_search_black_24dp"
+        android:title="@string/search"
+        app:actionViewClass="androidx.appcompat.widget.SearchView"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/menuTitle"
+        android:title="@string/orderBy"
+        app:showAsAction="never" />
+    <group
+        android:checkableBehavior="single"
+        app:showAsAction="never">
+        <item
+            android:id="@+id/order_by_name"
+            android:title="@string/name"
+            app:showAsAction="never" />
+        <item
+            android:id="@+id/order_by_date"
+            android:title="@string/installDate"
+            app:showAsAction="never" />
+    </group>
+
+    <item
+        android:id="@id/menuTitle"
+        android:title="@string/options"
+        app:showAsAction="never" />
+    <group
+        android:checkableBehavior="all"
+        app:showAsAction="never">
+        <item
+            android:id="@+id/show_system_app"
+            android:checkable="true"
+            android:checked="false"
+            android:title="@string/showSystemApp"
+            app:showAsAction="never" />
+        <item
+            android:id="@+id/show_release_app"
+            android:checkable="true"
+            android:checked="true"
+            android:title="@string/showRelease"
+            app:showAsAction="never" />
+        <item
+            android:id="@+id/show_debug_app"
+            android:checkable="true"
+            android:checked="true"
+            android:title="@string/showDebug"
+            app:showAsAction="never" />
+    </group>
+
+    <item
+        android:id="@id/menuTitle"
+        android:title="@string/other"
+        app:showAsAction="never" />
+    <group>
+        <item
+            android:id="@+id/menu_about"
+            android:title="@string/about"
+            app:showAsAction="never" />
+    </group>
+</menu>
