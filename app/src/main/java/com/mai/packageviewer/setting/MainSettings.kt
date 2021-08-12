@@ -13,6 +13,8 @@ enum class MainSettings {
         const val SHOW_SYSTEM_APP = "show_system_app"
         const val SHOW_RELEASE_APP = "show_release_app"
         const val SHOW_DEBUG_APP = "show_debug_app"
+        const val SHOW_TEST_ONLY_APP = "show_test_only_app"
+        const val SHOW_GAME_APP = "show_game_app"
     }
 
     fun getBool(key: String, defaultValue: Boolean): Boolean {

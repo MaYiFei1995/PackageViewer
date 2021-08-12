@@ -4,7 +4,10 @@ import android.content.pm.ApplicationInfo
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.content.pm.Signature
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Drawable
 import android.os.Build
+import com.mai.packageviewer.App
 
 
 class AppInfo(packageInfo: PackageInfo) {
@@ -33,8 +36,6 @@ class AppInfo(packageInfo: PackageInfo) {
 
     val packageName = packageInfo.applicationInfo.packageName
 
-    val iconRel = packageInfo.applicationInfo.icon
-
     val versionCode =
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) packageInfo.longVersionCode else packageInfo.versionCode.toLong()
 
@@ -55,5 +56,13 @@ class AppInfo(packageInfo: PackageInfo) {
 
     var label = ""
 
+    var iconDrawable: Drawable? = null
 
+    var hasInit = false
+
+    init {
+        val applicationInfo = packageInfo.applicationInfo
+        label = applicationInfo.loadLabel(App.app.packageManager).toString()
+        iconDrawable = applicationInfo.loadIcon(App.app.packageManager)
+    }
 }

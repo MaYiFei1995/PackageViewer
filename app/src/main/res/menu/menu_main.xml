@@ -50,6 +50,20 @@
             android:checked="true"
             android:title="@string/showDebug"
             app:showAsAction="never" />
+
+        <item
+            android:id="@+id/show_test_only_app"
+            android:checkable="true"
+            android:checked="true"
+            android:title="@string/showTestOnly"
+            app:showAsAction="never" />
+
+        <item
+            android:id="@+id/show_game_app"
+            android:checkable="true"
+            android:checked="true"
+            android:title="@string/showGame"
+            app:showAsAction="never" />
     </group>
 
     <item

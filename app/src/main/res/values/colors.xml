@@ -7,4 +7,12 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="yellow_500">#ffde03</color>
+    <color name="blue_700">#0336ff</color>
+    <color name="red_500">#ff0266</color>
+    <integer-array name="cat_custom_progress_colors">
+        <item>@color/yellow_500</item>
+        <item>@color/blue_700</item>
+        <item>@color/red_500</item>
+    </integer-array>
 </resources>
