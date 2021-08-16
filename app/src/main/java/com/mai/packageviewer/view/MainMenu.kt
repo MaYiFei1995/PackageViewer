@@ -24,7 +24,7 @@ import com.mai.packageviewer.App
 import com.mai.packageviewer.R
 import com.mai.packageviewer.setting.MainSettings
 
-class MainMenu(menu: Menu, val activity: Activity) {
+class MainMenu(val menu: Menu, val activity: Activity) {
 
     var mainMenuListener: MainMenuListener? = null
     lateinit var searchViewSearchButton: View
@@ -36,8 +36,6 @@ class MainMenu(menu: Menu, val activity: Activity) {
     var showDebugApp = true
     var showTestOnlyApp = true
     var showGameApp = true
-
-    var searchViewStatus = false
 
     init {
         menu.forEach {
@@ -59,11 +57,14 @@ class MainMenu(menu: Menu, val activity: Activity) {
                 }
                 R.id.order_by_name -> {
                     it.isChecked = MainSettings.INSTANCE.getBool(MainSettings.ORDER_BY_NAME, true)
+                    Log.e("test", "onOrderByNameInit...isChecked=${it.isChecked}")
                     orderByName = it.isChecked
                 }
                 R.id.order_by_date -> {
-                    it.isChecked = !MainSettings.INSTANCE.getBool(MainSettings.ORDER_BY_NAME, true)
-                    orderByName = !it.isChecked
+                    if (!MainSettings.INSTANCE.getBool(MainSettings.ORDER_BY_NAME, true)) {
+                        it.isChecked = true
+                        orderByName = !it.isChecked
+                    }
                 }
                 R.id.show_system_app -> {
                     it.isChecked =
@@ -91,8 +92,10 @@ class MainMenu(menu: Menu, val activity: Activity) {
                 R.id.app_bar_search -> {
                     val searchView = it.actionView as SearchView
                     searchView.queryHint = "输入应用名或包名"
-                    searchViewSearchButton = searchView.findViewById(androidx.appcompat.R.id.search_button)
-                    searchViewCloseButton = searchView.findViewById(androidx.appcompat.R.id.search_close_btn)
+                    searchViewSearchButton =
+                        searchView.findViewById(androidx.appcompat.R.id.search_button)
+                    searchViewCloseButton =
+                        searchView.findViewById(androidx.appcompat.R.id.search_close_btn)
                     searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
                         override fun onQueryTextSubmit(query: String?): Boolean {
                             return true

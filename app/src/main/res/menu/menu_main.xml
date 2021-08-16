@@ -13,6 +13,7 @@
         android:title="@string/orderBy"
         app:showAsAction="never" />
     <group
+        android:id="@+id/menu_group_sort"
         android:checkableBehavior="single"
         app:showAsAction="never">
         <item
@@ -30,6 +31,7 @@
         android:title="@string/options"
         app:showAsAction="never" />
     <group
+        android:id="@+id/menu_group_filters"
         android:checkableBehavior="all"
         app:showAsAction="never">
         <item

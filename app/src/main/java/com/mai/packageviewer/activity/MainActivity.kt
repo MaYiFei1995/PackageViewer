@@ -13,7 +13,6 @@ import android.view.KeyEvent
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.Snackbar
@@ -22,7 +21,12 @@ import com.mai.packageviewer.R
 import com.mai.packageviewer.adapter.AppAdapter
 import com.mai.packageviewer.data.AppInfo
 import com.mai.packageviewer.databinding.ActivityMainBinding
+import com.mai.packageviewer.util.AppInfoHelper
 import com.mai.packageviewer.view.MainMenu
+import net.sourceforge.pinyin4j.PinyinHelper
+import java.util.*
+import kotlin.collections.ArrayList
+import kotlin.math.min
 
 
 class MainActivity : AppCompatActivity() {
@@ -36,6 +40,8 @@ class MainActivity : AppCompatActivity() {
 
     private var onBackPressedTimeStamp = System.currentTimeMillis()
 
+    private var isPause = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binder = ActivityMainBinding.inflate(layoutInflater)
@@ -43,27 +49,29 @@ class MainActivity : AppCompatActivity() {
         initRecyclerView()
     }
 
+    override fun onPause() {
+        super.onPause()
+        isPause = true
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (isPause && !AppInfoHelper.isRunning)
+            onDataSetChanged()
+    }
 
     private fun initRecyclerView() {
         binder.recycler.layoutManager = LinearLayoutManager(this)
         binder.recycler.adapter = appAdapter
     }
 
-    private val installedPackages: MutableList<PackageInfo> by lazy {
-        val flags =
-            PackageManager.GET_META_DATA or (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
-                PackageManager.GET_SIGNING_CERTIFICATES else PackageManager.GET_SIGNATURES)
-        packageManager.getInstalledPackages(flags)
-    }
-
-    private val thread = Thread {
-        appInfoList.clear()
-        installedPackages.forEach {
-            val appInfo = AppInfo(it)
-            appInfoList.add(appInfo)
+    private val installedPackages: MutableList<PackageInfo>
+        get() {
+            val flags =
+                PackageManager.GET_META_DATA or (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
+                    PackageManager.GET_SIGNING_CERTIFICATES else PackageManager.GET_SIGNATURES)
+            return packageManager.getInstalledPackages(flags)
         }
-        onOptionsChanged()
-    }
 
     private fun onDataSetChanged() {
         val packages = installedPackages
@@ -94,65 +102,110 @@ class MainActivity : AppCompatActivity() {
                 }
                 .show()
         }
+
         showLoading()
-        thread.start()
+
+        AppInfoHelper.handle(packages, object : AppInfoHelper.AppInfoCallback {
+            override fun onResult(ret: Vector<MutableList<AppInfo>>) {
+                appInfoList.clear()
+                ret.forEach {
+                    appInfoList.addAll(it)
+                }
+                onOptionsChanged()
+            }
+        }, packages.size / 60 + 1)
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    private fun onOptionsChanged() {
+    private fun onOptionsChanged(sortOnly: Boolean = false) {
         runOnUiThread {
-            appInfoFilterList.clear()
-            appInfoFilterList.addAll(appInfoList.filterNot {
-                it.packageName == BuildConfig.APPLICATION_ID
-                        || (!mainMenu.showSystemApp && it.isSystemApp)
-                        || (!mainMenu.showReleaseApp && !it.isDebugApp)
-                        || (!mainMenu.showDebugApp && it.isDebugApp)
-                        || (!mainMenu.showTestOnlyApp && it.isTestOnlyApp)
-                        || (!mainMenu.showGameApp && it.isGameApp)
-            })
+            if (!sortOnly) {
+                appInfoFilterList.clear()
+                appInfoFilterList.addAll(appInfoList.filterNot {
+                    it.packageName == BuildConfig.APPLICATION_ID
+                            || (!mainMenu.showSystemApp && it.isSystemApp)
+                            || (!mainMenu.showReleaseApp && !it.isDebugApp)
+                            || (!mainMenu.showDebugApp && it.isDebugApp)
+                            || (!mainMenu.showTestOnlyApp && it.isTestOnlyApp)
+                            || (!mainMenu.showGameApp && it.isGameApp)
+                })
+            }
+            Log.e("test", "appInfoFilterList.size = ${appInfoFilterList.size}")
+
+            if (mainMenu.orderByName) {
+                appInfoFilterList.sortWith { lh, rh ->
+                    val charL = lh.label[0].toLowerCase()
+                    val charR = rh.label[0].toLowerCase()
+                    val strL = if (charL.isLowerCase() || charL.isDigit()) {
+                        lh.label.toLowerCase(Locale.getDefault()).toCharArray()
+                    } else {
+                        PinyinHelper.toHanyuPinyinStringArray(charL)[0].toCharArray()
+                    }
+                    val strR = if (charR.isLowerCase() || charR.isDigit()) {
+                        rh.label.toLowerCase(Locale.getDefault()).toCharArray()
+                    } else {
+                        PinyinHelper.toHanyuPinyinStringArray(charR)[0].toCharArray()
+                    }
+
+                    var result = 1
+                    for (i in 0 until min(strL.size, strR.size)) {
+                        if (strL[i] != strR[i]) {
+                            result = strL[i].toInt() - strR[i].toInt()
+                            break
+                        } else {
+                            continue
+                        }
+                    }
+                    result
+                }
+            } else {
+                appInfoFilterList.sortBy {
+                    it.lastUpdateTime
+                }
+            }
             hideLoading()
+            Snackbar.make(binder.root, "共找到${appInfoFilterList.size}个应用", Snackbar.LENGTH_SHORT)
+                .show()
             appAdapter.notifyDataSetChanged()
         }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+//    private fun onQueryTextChange(newText: String) {
+//
+//    }
 
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu_main, menu)
         mainMenu = MainMenu(menu!!, this)
         mainMenu.mainMenuListener = object : MainMenu.MainMenuListener {
 
             override fun onOrderChanged(orderByName: Boolean) {
-                Log.e(tag, "onOrderChanged...orderByName = $orderByName")
-
+                onOptionsChanged(true)
             }
 
             override fun onIncludeSystemApp(includeSystemApp: Boolean) {
-                Log.e(tag, "onIncludeSystemApp...includeSystemApp = $includeSystemApp")
                 onOptionsChanged()
             }
 
             override fun onIncludeReleaseApp(includeReleaseApp: Boolean) {
-                Log.e(tag, "onIncludeReleaseApp...includeReleaseApp = $includeReleaseApp")
                 onOptionsChanged()
             }
 
             override fun onIncludeDebugApp(includeDebugApp: Boolean) {
-                Log.e(tag, "onIncludeDebugApp...includeDebugApp = $includeDebugApp")
                 onOptionsChanged()
             }
 
             override fun onIncludeTestOnlyApp(includeTestOnlyApp: Boolean) {
-                Log.e(tag, "onIncludeTestOnlyApp...includeTestOnlyApp = $includeTestOnlyApp")
                 onOptionsChanged()
             }
 
             override fun onIncludeGameApp(includeGameApp: Boolean) {
-                Log.e(tag, "onIncludeGameApp...includeGameApp = $includeGameApp")
                 onOptionsChanged()
             }
 
             override fun onQueryTextChange(newText: String) {
-                Log.e(tag, "onQueryTextChange...newText = $newText")
+                appAdapter.filter.filter(newText)
+//                onQueryTextChange(newText)
             }
 
         }
@@ -163,10 +216,14 @@ class MainActivity : AppCompatActivity() {
 
     private fun showLoading() {
         binder.loadingView.visibility = View.VISIBLE
+        mainMenu.menu.setGroupEnabled(R.id.menu_group_sort, false)
+        mainMenu.menu.setGroupEnabled(R.id.menu_group_filters, false)
     }
 
     private fun hideLoading() {
         binder.loadingView.visibility = View.GONE
+        mainMenu.menu.setGroupEnabled(R.id.menu_group_sort, true)
+        mainMenu.menu.setGroupEnabled(R.id.menu_group_filters, true)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -188,8 +245,8 @@ class MainActivity : AppCompatActivity() {
                     true
                 } else {
                     try {
-                        if (thread.isAlive) {
-                            thread.interrupt()
+                        if (AppInfoHelper.isRunning) {
+                            AppInfoHelper.forceStop()
                         }
                     } catch (e: Exception) {
                         e.printStackTrace()
