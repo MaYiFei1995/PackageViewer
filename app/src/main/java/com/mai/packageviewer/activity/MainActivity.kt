@@ -166,6 +166,7 @@ class MainActivity : AppCompatActivity() {
             hideLoading()
             Snackbar.make(binder.root, "共找到${appInfoFilterList.size}个应用", Snackbar.LENGTH_SHORT)
                 .show()
+            appAdapter.update(appInfoFilterList)
             appAdapter.notifyDataSetChanged()
         }
     }
