@@ -6,7 +6,6 @@ import android.content.Intent
 import android.net.Uri
 import android.text.SpannableString
 import android.text.style.ForegroundColorSpan
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
@@ -17,19 +16,26 @@ import android.webkit.WebViewClient
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.SearchView
 import androidx.core.content.ContextCompat
-import androidx.core.view.MenuItemCompat
 import androidx.core.view.forEach
-import com.google.gson.Gson
 import com.mai.packageviewer.App
 import com.mai.packageviewer.R
 import com.mai.packageviewer.setting.MainSettings
 
+/**
+ * 筛选与搜索菜单
+ */
 class MainMenu(val menu: Menu, val activity: Activity) {
 
+    /**
+     * 回调
+     */
     var mainMenuListener: MainMenuListener? = null
-    lateinit var searchViewSearchButton: View
-    lateinit var searchViewCloseButton: View
 
+    // 搜索框，用于判断处理back事件
+    private lateinit var searchViewSearchButton: View
+    private lateinit var searchViewCloseButton: View
+
+    // 筛选条件
     var orderByName = true
     var showSystemApp = false
     var showReleaseApp = true
@@ -57,7 +63,6 @@ class MainMenu(val menu: Menu, val activity: Activity) {
                 }
                 R.id.order_by_name -> {
                     it.isChecked = MainSettings.INSTANCE.getBool(MainSettings.ORDER_BY_NAME, true)
-                    Log.e("test", "onOrderByNameInit...isChecked=${it.isChecked}")
                     orderByName = it.isChecked
                 }
                 R.id.order_by_date -> {
@@ -98,6 +103,7 @@ class MainMenu(val menu: Menu, val activity: Activity) {
                         searchView.findViewById(androidx.appcompat.R.id.search_close_btn)
                     searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
                         override fun onQueryTextSubmit(query: String?): Boolean {
+                            // 实时搜索
                             return true
                         }
 
@@ -112,6 +118,9 @@ class MainMenu(val menu: Menu, val activity: Activity) {
         }
     }
 
+    /**
+     * 处理菜单的点击事件
+     */
     fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.order_by_name -> {
@@ -178,9 +187,11 @@ class MainMenu(val menu: Menu, val activity: Activity) {
         return true
     }
 
+    /**
+     * 处理back事件时的搜索框相应
+     */
     fun handleBackPresses(): Boolean {
         return if (searchViewSearchButton.visibility != View.VISIBLE) {
-            Log.e("TEST", "true...")
             searchViewCloseButton.performClick()
             true
         } else {
@@ -188,6 +199,9 @@ class MainMenu(val menu: Menu, val activity: Activity) {
         }
     }
 
+    /**
+     * 展示关于界面
+     */
     private fun showAboutDialog() {
         val webView =
             LayoutInflater.from(activity).inflate(R.layout.dialog_about, null, false) as WebView
@@ -196,6 +210,7 @@ class MainMenu(val menu: Menu, val activity: Activity) {
                 if (url != null)
                     if (url.startsWith("https://")) {
                         try {
+                            // 通过浏览器访问
                             activity.startActivity(
                                 Intent(Intent.ACTION_VIEW).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                                     .setData(Uri.parse(url))

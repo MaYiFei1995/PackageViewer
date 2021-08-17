@@ -1,21 +1,33 @@
 package com.mai.packageviewer.util
 
 import android.content.pm.PackageInfo
-import android.util.Log
 import com.mai.packageviewer.data.AppInfo
+import com.mai.packageviewer.data.BaseKVObject
+import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.collections.ArrayList
 
+/**
+ * 通过多线程处理App信息的初始化
+ * 耗时操作主要是获取label，测试机获取单个label时间约20ms
+ * 使用过多线程并不会简单提升获取速度
+ */
 object AppInfoHelper {
     var isRunning = false
 
-    var threadList = ConcurrentHashMap<Int, Thread>()
+    private var threadList = ConcurrentHashMap<Int, Thread>()
 
+    /**
+     * 处理数据的初始化
+     * @param list 数据
+     * @param callback 回调
+     * @param threads 线程数，默认为4
+     */
     fun handle(list: MutableList<PackageInfo>, callback: AppInfoCallback, threads: Int = 4) {
-        Log.e("test", "threads = $threads")
         isRunning = true
         val ret = Vector<MutableList<AppInfo>>(threads)
+        // 根据threads分割数据
         val averageAssign = averageAssign(list, threads)
         for (i in 0 until threads) {
             val thread = Thread {
@@ -25,6 +37,8 @@ object AppInfoHelper {
                     result.add(appInfo)
                 }
                 ret.add(result)
+
+                //判断任务状态
                 if (ret.size == threads) {
                     isRunning = false
                     callback.onResult(ret)
@@ -42,6 +56,12 @@ object AppInfoHelper {
         }
     }
 
+    /**
+     * 均分List
+     * @param source 源数据
+     * @param n 份数
+     * @return 分割后的List
+     */
     private fun <T> averageAssign(source: List<T>, n: Int): List<List<T>> {
         val result: MutableList<List<T>> = ArrayList()
         var remainder = source.size % n
@@ -62,6 +82,9 @@ object AppInfoHelper {
         return result
     }
 
+    /**
+     * 强制结束线程
+     */
     fun forceStop() {
         threadList.forEach { (_, v) ->
             try {
@@ -77,4 +100,48 @@ object AppInfoHelper {
     interface AppInfoCallback {
         fun onResult(ret: Vector<MutableList<AppInfo>>)
     }
+
+    /**
+     * 将AppInfo转换为详情页的键值对
+     * 处理签名
+     * 处理启动类
+     */
+    //TODO 处理启动类
+    fun AppInfo.toDetailList(): MutableList<BaseKVObject<String>> {
+        val ret = LinkedList<BaseKVObject<String>>()
+        ret.add(BaseKVObject("Label", this.label))
+        ret.add(BaseKVObject("PackageName", this.packageName))
+        ret.add(BaseKVObject("Application", "${this.className}"))
+        ret.add(BaseKVObject("versionCode", "${this.versionCode}"))
+        ret.add(BaseKVObject("versionName", "${this.versionName}"))
+        if (this.minSdkVersion != -1)
+            ret.add(BaseKVObject("minSdkVersion", "${this.minSdkVersion}"))
+        ret.add(BaseKVObject("targetSdkVersion", "${this.targetSdkVersion}"))
+        ret.add(
+            BaseKVObject(
+                "firstInstallTime",
+                SimpleDateFormat.getDateTimeInstance().format(this.firstInstallTime)
+            )
+        )
+        ret.add(
+            BaseKVObject(
+                "lastUpdateTime",
+                SimpleDateFormat.getDateTimeInstance().format(this.firstInstallTime)
+            )
+        )
+
+        repeat(this.signingInfo.count()) {
+            val signatures = SignatureUtil.getSignatureInfo(this.signingInfo[it])
+            signatures.forEach { obj ->
+                ret.add(BaseKVObject("Signature$it-${obj.k}", obj.v))
+            }
+        }
+
+        ret.add(BaseKVObject("DebugApp", "${this.isDebugApp}"))
+        ret.add(BaseKVObject("SystemApp", "${this.isSystemApp}"))
+        ret.add(BaseKVObject("TestOnly", "${this.isTestOnlyApp}"))
+        ret.add(BaseKVObject("Game", "${this.isGameApp}"))
+        return ret
+    }
+
 }

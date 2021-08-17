@@ -8,7 +8,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
-import android.util.Log
 import android.view.KeyEvent
 import android.view.Menu
 import android.view.MenuItem
@@ -30,7 +29,6 @@ import kotlin.math.min
 
 
 class MainActivity : AppCompatActivity() {
-    private val tag = MainActivity::class.simpleName
     private lateinit var binder: ActivityMainBinding
     private lateinit var mainMenu: MainMenu
 
@@ -54,6 +52,9 @@ class MainActivity : AppCompatActivity() {
         isPause = true
     }
 
+    /**
+     * 刷新应用列表
+     */
     override fun onResume() {
         super.onResume()
         if (isPause && !AppInfoHelper.isRunning)
@@ -70,9 +71,13 @@ class MainActivity : AppCompatActivity() {
             val flags =
                 PackageManager.GET_META_DATA or (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
                     PackageManager.GET_SIGNING_CERTIFICATES else PackageManager.GET_SIGNATURES)
-            return packageManager.getInstalledPackages(flags)
+            return packageManager.getInstalledPackages(flags).subList(0, 5)
         }
 
+    //TODO 监听系统安装卸载应用的广播
+    /**
+     * 获取并筛选app
+     */
     private fun onDataSetChanged() {
         val packages = installedPackages
         if (packages.size < 15) {
@@ -116,11 +121,16 @@ class MainActivity : AppCompatActivity() {
         }, packages.size / 60 + 1)
     }
 
+    /**
+     * 筛选条件与排序依据变更，重新获取条件并过滤
+     * @param sortOnly 只排序，不更改过滤条件
+     */
     @SuppressLint("NotifyDataSetChanged")
     private fun onOptionsChanged(sortOnly: Boolean = false) {
         runOnUiThread {
             if (!sortOnly) {
                 appInfoFilterList.clear()
+                // 重新过滤
                 appInfoFilterList.addAll(appInfoList.filterNot {
                     it.packageName == BuildConfig.APPLICATION_ID
                             || (!mainMenu.showSystemApp && it.isSystemApp)
@@ -130,26 +140,37 @@ class MainActivity : AppCompatActivity() {
                             || (!mainMenu.showGameApp && it.isGameApp)
                 })
             }
-            Log.e("test", "appInfoFilterList.size = ${appInfoFilterList.size}")
 
+            // 排序
             if (mainMenu.orderByName) {
                 appInfoFilterList.sortWith { lh, rh ->
                     val charL = lh.label[0].toLowerCase()
                     val charR = rh.label[0].toLowerCase()
                     val strL = if (charL.isLowerCase() || charL.isDigit()) {
+                        // label为字母
                         lh.label.toLowerCase(Locale.getDefault()).toCharArray()
                     } else {
-                        PinyinHelper.toHanyuPinyinStringArray(charL)[0].toCharArray()
+                        // 首字拼音+读音，简单比较直接忽略错误
+                        try {
+                            PinyinHelper.toHanyuPinyinStringArray(charL)[0].toCharArray()
+                        } catch (e: Exception) {
+                            lh.label.toLowerCase(Locale.getDefault()).toCharArray()
+                        }
                     }
                     val strR = if (charR.isLowerCase() || charR.isDigit()) {
                         rh.label.toLowerCase(Locale.getDefault()).toCharArray()
                     } else {
-                        PinyinHelper.toHanyuPinyinStringArray(charR)[0].toCharArray()
+                        try {
+                            PinyinHelper.toHanyuPinyinStringArray(charR)[0].toCharArray()
+                        } catch (e: Exception) {
+                            rh.label.toLowerCase(Locale.getDefault()).toCharArray()
+                        }
                     }
 
-                    var result = 1
+                    var result = 1  // 简单比较，忽略首字读音相同情况
                     for (i in 0 until min(strL.size, strR.size)) {
                         if (strL[i] != strR[i]) {
+                            // 继续比较下一位
                             result = strL[i].toInt() - strR[i].toInt()
                             break
                         } else {
@@ -171,9 +192,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-//    private fun onQueryTextChange(newText: String) {
-//
-//    }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu_main, menu)
@@ -205,8 +223,8 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onQueryTextChange(newText: String) {
+                // 搜索
                 appAdapter.filter.filter(newText)
-//                onQueryTextChange(newText)
             }
 
         }
@@ -229,6 +247,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (::mainMenu.isInitialized) {
+            // 处理点击事件
             if (mainMenu.onOptionsItemSelected(item))
                 return true
         }
@@ -237,6 +256,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
         return if (keyCode == KeyEvent.KEYCODE_BACK) {
+            // 判断搜索框状态
             if (mainMenu.handleBackPresses()) {
                 true
             } else {

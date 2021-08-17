@@ -2,9 +2,7 @@ package com.mai.packageviewer.data
 
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageInfo
-import android.content.pm.PackageManager
 import android.content.pm.Signature
-import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.os.Build
 import com.mai.packageviewer.App
@@ -12,14 +10,26 @@ import com.mai.packageviewer.App
 
 class AppInfo(packageInfo: PackageInfo) {
 
+    /**
+     * 系统App
+     */
     val isSystemApp =
         ((packageInfo.applicationInfo.flags and ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) != 0
                 ) or (packageInfo.applicationInfo.flags and ApplicationInfo.FLAG_SYSTEM != 0)
 
+    /**
+     * Debug
+     */
     val isDebugApp = (packageInfo.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0
 
+    /**
+     * TestOnly
+     */
     val isTestOnlyApp = (packageInfo.applicationInfo.flags and ApplicationInfo.FLAG_TEST_ONLY) != 0
 
+    /**
+     * Game
+     */
     val isGameApp =
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             (packageInfo.applicationInfo.category == ApplicationInfo.CATEGORY_GAME) or ((packageInfo.applicationInfo.flags and ApplicationInfo.FLAG_IS_GAME) != 0)
@@ -27,25 +37,53 @@ class AppInfo(packageInfo: PackageInfo) {
             packageInfo.applicationInfo.flags and ApplicationInfo.FLAG_IS_GAME != 0
         }
 
-    val className = packageInfo.applicationInfo.className
+    /**
+     * Application的className
+     */
+    val className: String? = packageInfo.applicationInfo.className
 
+    /**
+     * minSdkVersion
+     * AndroidN之前不支持
+     */
     val minSdkVersion =
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) packageInfo.applicationInfo.minSdkVersion else -1
 
+    /**
+     * targetSdkVersion
+     */
     val targetSdkVersion = packageInfo.applicationInfo.targetSdkVersion
 
-    val packageName = packageInfo.applicationInfo.packageName
+    /**
+     * ApplicationID
+     */
+    val packageName: String = packageInfo.applicationInfo.packageName ?: ""
 
+    /**
+     * versionCode
+     */
     val versionCode =
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) packageInfo.longVersionCode else packageInfo.versionCode.toLong()
 
-    val versionName = packageInfo.versionName
+    /**
+     * versionName
+     */
+    val versionName: String? = packageInfo.versionName
 
+    /**
+     * 首次安装时间
+     */
     val firstInstallTime = packageInfo.firstInstallTime
 
+    /**
+     * 最后更新时间
+     */
     val lastUpdateTime = packageInfo.lastUpdateTime
 
-    val singingInfo: Array<Signature> =
+    /**
+     * 签名信息
+     */
+    val signingInfo: Array<Signature> =
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             if (packageInfo.signingInfo.hasMultipleSigners())
                 packageInfo.signingInfo.apkContentsSigners
@@ -54,14 +92,19 @@ class AppInfo(packageInfo: PackageInfo) {
         } else
             packageInfo.signatures
 
+    /**
+     * AppName
+     */
     var label = ""
 
+    /**
+     * icon
+     */
     var iconDrawable: Drawable? = null
-
-    var hasInit = false
 
     init {
         val applicationInfo = packageInfo.applicationInfo
+        // 耗时操作
         label = applicationInfo.loadLabel(App.app.packageManager).toString()
         iconDrawable = applicationInfo.loadIcon(App.app.packageManager)
     }
