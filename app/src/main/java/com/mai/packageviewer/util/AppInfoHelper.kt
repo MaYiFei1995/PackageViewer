@@ -104,9 +104,7 @@ object AppInfoHelper {
     /**
      * 将AppInfo转换为详情页的键值对
      * 处理签名
-     * 处理启动类
      */
-    //TODO 处理启动类
     fun AppInfo.toDetailList(): MutableList<BaseKVObject<String>> {
         val ret = LinkedList<BaseKVObject<String>>()
         ret.add(BaseKVObject("Label", this.label))
@@ -126,7 +124,7 @@ object AppInfoHelper {
         ret.add(
             BaseKVObject(
                 "lastUpdateTime",
-                SimpleDateFormat.getDateTimeInstance().format(this.firstInstallTime)
+                SimpleDateFormat.getDateTimeInstance().format(this.lastUpdateTime)
             )
         )
 

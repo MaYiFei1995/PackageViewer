@@ -71,7 +71,7 @@ class MainActivity : AppCompatActivity() {
             val flags =
                 PackageManager.GET_META_DATA or (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
                     PackageManager.GET_SIGNING_CERTIFICATES else PackageManager.GET_SIGNATURES)
-            return packageManager.getInstalledPackages(flags).subList(0, 5)
+            return packageManager.getInstalledPackages(flags)
         }
 
     //TODO 监听系统安装卸载应用的广播
