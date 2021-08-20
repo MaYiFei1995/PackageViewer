@@ -1,13 +1,14 @@
 package com.mai.packageviewer.activity
 
 import android.annotation.SuppressLint
-import android.content.Intent
+import android.content.*
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import android.util.Log
 import android.view.KeyEvent
 import android.view.Menu
 import android.view.MenuItem
@@ -21,11 +22,13 @@ import com.mai.packageviewer.adapter.AppAdapter
 import com.mai.packageviewer.data.AppInfo
 import com.mai.packageviewer.databinding.ActivityMainBinding
 import com.mai.packageviewer.util.AppInfoHelper
+import com.mai.packageviewer.util.PackageReceiver
 import com.mai.packageviewer.view.MainMenu
 import net.sourceforge.pinyin4j.PinyinHelper
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.math.min
+import android.content.Intent
 
 
 class MainActivity : AppCompatActivity() {
@@ -40,11 +43,31 @@ class MainActivity : AppCompatActivity() {
 
     private var isPause = false
 
+    private var packageReceiver = PackageReceiver { _, intent ->
+        if (intent.action != null) {
+            when (intent.action) {
+                Intent.ACTION_PACKAGE_ADDED,
+                Intent.ACTION_PACKAGE_REMOVED,
+                Intent.ACTION_PACKAGE_REPLACED -> {
+                    onDataSetChanged()
+                }
+            }
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binder = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binder.root)
         initRecyclerView()
+
+        registerReceiver(packageReceiver, IntentFilter().apply {
+            addDataScheme("package")
+            addAction(Intent.ACTION_PACKAGE_ADDED)
+            addAction(Intent.ACTION_PACKAGE_REMOVED)
+            addAction(Intent.ACTION_PACKAGE_REPLACED)
+        })
+
     }
 
     override fun onPause() {
@@ -61,6 +84,11 @@ class MainActivity : AppCompatActivity() {
             onDataSetChanged()
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        unregisterReceiver(packageReceiver)
+    }
+
     private fun initRecyclerView() {
         binder.recycler.layoutManager = LinearLayoutManager(this)
         binder.recycler.adapter = appAdapter
@@ -74,7 +102,6 @@ class MainActivity : AppCompatActivity() {
             return packageManager.getInstalledPackages(flags)
         }
 
-    //TODO 监听系统安装卸载应用的广播
     /**
      * 获取并筛选app
      */
@@ -171,7 +198,13 @@ class MainActivity : AppCompatActivity() {
                     for (i in 0 until min(strL.size, strR.size)) {
                         if (strL[i] != strR[i]) {
                             // 继续比较下一位
-                            result = strL[i].toInt() - strR[i].toInt()
+                            val num = strL[i].toInt() - strR[i].toInt()
+                            result = when {
+                                num > 0 -> 1
+                                num == 0 -> 0
+                                num < 0 -> -1
+                                else -> 1
+                            }
                             break
                         } else {
                             continue
@@ -180,7 +213,8 @@ class MainActivity : AppCompatActivity() {
                     result
                 }
             } else {
-                appInfoFilterList.sortBy {
+                // 更新时间降序
+                appInfoFilterList.sortByDescending {
                     it.lastUpdateTime
                 }
             }

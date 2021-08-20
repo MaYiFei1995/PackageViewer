@@ -3,6 +3,7 @@ package com.mai.packageviewer
 import android.app.Application
 
 class App : Application() {
+
     companion object {
         /**
          * 全局context
@@ -14,4 +15,5 @@ class App : Application() {
         super.onCreate()
         app = this
     }
+
 }

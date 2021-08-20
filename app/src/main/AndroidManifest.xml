@@ -3,14 +3,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.mai.packageviewer">
 
-    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"
+    <uses-permission
+        android:name="android.permission.QUERY_ALL_PACKAGES"
         tools:ignore="QueryAllPackagesPermission" />
 
     <uses-permission android:name="android.permission.REQUEST_DELETE_PACKAGES" />
 
     <queries>
         <intent>
-            <action android:name="android.intent.action.MAIN"/>
+            <action android:name="android.intent.action.MAIN" />
         </intent>
     </queries>
 
@@ -22,7 +23,9 @@
         android:roundIcon="@drawable/archive_search"
         android:supportsRtl="true"
         android:theme="@style/Theme.PackageViewer">
-        <activity android:name=".activity.MainActivity">
+        <activity
+            android:name=".activity.MainActivity"
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
