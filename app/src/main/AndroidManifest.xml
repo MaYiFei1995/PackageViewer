@@ -25,7 +25,7 @@
         android:theme="@style/Theme.PackageViewer">
         <activity
             android:name=".activity.MainActivity"
-            android:exported="false">
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

@@ -49,7 +49,8 @@ class MainActivity : AppCompatActivity() {
                 Intent.ACTION_PACKAGE_ADDED,
                 Intent.ACTION_PACKAGE_REMOVED,
                 Intent.ACTION_PACKAGE_REPLACED -> {
-                    onDataSetChanged()
+                    if (!AppInfoHelper.isRunning)
+                        onDataSetChanged()
                 }
             }
         }
