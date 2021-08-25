@@ -72,7 +72,14 @@
         android:id="@id/menuTitle"
         android:title="@string/other"
         app:showAsAction="never" />
+
     <group>
+        <item
+            android:id="@+id/fast_mode"
+            android:checkable="true"
+            android:checked="false"
+            android:title="@string/fastMode"
+            app:showAsAction="never"/>
         <item
             android:id="@+id/menu_about"
             android:title="@string/about"

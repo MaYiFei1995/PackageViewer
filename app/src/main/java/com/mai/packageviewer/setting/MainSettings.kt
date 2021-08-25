@@ -15,6 +15,7 @@ enum class MainSettings {
         const val SHOW_DEBUG_APP = "show_debug_app"
         const val SHOW_TEST_ONLY_APP = "show_test_only_app"
         const val SHOW_GAME_APP = "show_game_app"
+        const val INIT_FAST_MODE = "init_fast_mode"
     }
 
     fun getBool(key: String, defaultValue: Boolean): Boolean {

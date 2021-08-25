@@ -6,6 +6,7 @@ import android.content.pm.Signature
 import android.graphics.drawable.Drawable
 import android.os.Build
 import com.mai.packageviewer.App
+import com.mai.packageviewer.view.MainMenu
 
 
 class AppInfo(packageInfo: PackageInfo) {
@@ -106,6 +107,9 @@ class AppInfo(packageInfo: PackageInfo) {
         val applicationInfo = packageInfo.applicationInfo
         // 耗时操作
         label = applicationInfo.loadLabel(App.app.packageManager).toString()
-        iconDrawable = applicationInfo.loadIcon(App.app.packageManager)
+
+        if (!MainMenu.initFastMode) {
+            iconDrawable = applicationInfo.loadIcon(App.app.packageManager)
+        }
     }
 }

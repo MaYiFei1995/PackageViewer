@@ -11,5 +11,6 @@
     <string name="showDebug">显示debug</string>
     <string name="showTestOnly">显示testOnly</string>
     <string name="showGame">显示游戏APP</string>
+    <string name="fastMode">快速模式(不加载icon)</string>
     <string name="about">关于</string>
 </resources>

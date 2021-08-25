@@ -13,10 +13,12 @@ import android.view.View
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.SearchView
 import androidx.core.content.ContextCompat
 import androidx.core.view.forEach
+import com.google.android.material.snackbar.Snackbar
 import com.mai.packageviewer.App
 import com.mai.packageviewer.R
 import com.mai.packageviewer.setting.MainSettings
@@ -42,6 +44,11 @@ class MainMenu(val menu: Menu, val activity: Activity) {
     var showDebugApp = true
     var showTestOnlyApp = true
     var showGameApp = true
+
+    companion object{
+        // 快速模式
+        var initFastMode = MainSettings.INSTANCE.getBool(MainSettings.INIT_FAST_MODE, false)
+    }
 
     init {
         menu.forEach {
@@ -93,6 +100,10 @@ class MainMenu(val menu: Menu, val activity: Activity) {
                 R.id.show_game_app -> {
                     it.isChecked = MainSettings.INSTANCE.getBool(MainSettings.SHOW_GAME_APP, true)
                     showGameApp = it.isChecked
+                }
+                R.id.fast_mode ->{
+                    it.isChecked = MainSettings.INSTANCE.getBool(MainSettings.INIT_FAST_MODE, false)
+                    initFastMode = it.isChecked
                 }
                 R.id.app_bar_search -> {
                     val searchView = it.actionView as SearchView
@@ -176,6 +187,15 @@ class MainMenu(val menu: Menu, val activity: Activity) {
 
                 showGameApp = b
                 mainMenuListener?.onIncludeGameApp(b)
+            }
+            R.id.fast_mode -> {
+                val b = !item.isChecked
+                item.isChecked = b
+                MainSettings.INSTANCE.setBool(MainSettings.INIT_FAST_MODE, b)
+
+                initFastMode = b
+
+                Toast.makeText(activity, "应用重启后生效", Toast.LENGTH_SHORT).show()
             }
             R.id.menu_about -> {
                 showAboutDialog()
