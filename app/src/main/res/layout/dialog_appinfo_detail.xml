@@ -10,27 +10,38 @@
         android:id="@+id/appInfoDetailRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginBottom="48dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginBottom="48dp"
         tools:listitem="@layout/item_app_info_detail" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/settingsBtn"
+        android:layout_width="0dp"
+        android:layout_height="48dp"
+        android:background="@color/purple_200"
+        android:text="设置"
+        android:textColor="@color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/launchBtn"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/launchBtn"
         android:layout_width="0dp"
         android:layout_height="48dp"
-        android:background="@color/purple_200"
+        android:background="@color/purple_500"
         android:text="启动"
         android:textColor="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/uninstallBtn"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toEndOf="@id/settingsBtn" />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/uninstallBtn"
         android:layout_width="0dp"
         android:layout_height="48dp"
-        android:background="@color/purple_500"
+        android:background="@color/purple_700"
         android:text="卸载"
         android:textColor="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"

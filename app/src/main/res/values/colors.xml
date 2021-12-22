@@ -15,4 +15,5 @@
         <item>@color/blue_700</item>
         <item>@color/red_500</item>
     </integer-array>
+    <color name="text_primary">#757575</color>
 </resources>

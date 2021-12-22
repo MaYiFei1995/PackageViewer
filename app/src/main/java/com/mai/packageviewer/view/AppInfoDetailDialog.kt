@@ -5,8 +5,10 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Rect
 import android.net.Uri
+import android.provider.Settings
 import android.view.LayoutInflater
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -39,6 +41,19 @@ class AppInfoDetailDialog(context: Context, data: AppInfo) {
         binder.appInfoDetailRecyclerView.adapter = AppInfoDetailAdapter(data.toDetailList())
         // 通过AlertDialog实现
 
+        // 设置
+        binder.settingsBtn.setOnClickListener {
+            try {
+                context.startActivity(
+                    Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).setData(
+                        Uri.fromParts("package", data.packageName, null)
+                    ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                )
+            } catch (e: Exception) {
+                e.printStackTrace()
+                Toast.makeText(context, "跳转设置页失败", Toast.LENGTH_SHORT).show()
+            }
+        }
 
         // 拉起
         binder.launchBtn.setOnClickListener {
@@ -56,6 +71,7 @@ class AppInfoDetailDialog(context: Context, data: AppInfo) {
                 alertDialog?.dismiss()
             } catch (e: Exception) {
                 e.printStackTrace()
+                Toast.makeText(context, "拉起失败", Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -72,6 +88,7 @@ class AppInfoDetailDialog(context: Context, data: AppInfo) {
                     alertDialog?.dismiss()
                 } catch (e: Exception) {
                     e.printStackTrace()
+                    Toast.makeText(context, "卸载失败", Toast.LENGTH_SHORT).show()
                 }
 
             }
