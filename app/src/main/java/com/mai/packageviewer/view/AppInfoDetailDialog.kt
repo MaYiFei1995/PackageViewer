@@ -10,12 +10,15 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.FileProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.mai.packageviewer.BuildConfig
 import com.mai.packageviewer.adapter.AppInfoDetailAdapter
 import com.mai.packageviewer.data.AppInfo
 import com.mai.packageviewer.databinding.DialogAppinfoDetailBinding
 import com.mai.packageviewer.util.AppInfoHelper.toDetailList
+import java.io.File
 
 /**
  * 详情页Dialog
@@ -40,6 +43,24 @@ class AppInfoDetailDialog(context: Context, data: AppInfo) {
         })
         binder.appInfoDetailRecyclerView.adapter = AppInfoDetailAdapter(data.toDetailList())
         // 通过AlertDialog实现
+
+        // 导出apk-file
+        binder.exportApkFile.setOnClickListener {
+            share(
+                context,
+                apkFileUri = FileProvider.getUriForFile(
+                    context,
+                    "${BuildConfig.APPLICATION_ID}.fileProvider",
+                    File(data.apkPath)
+                )
+            )
+        }
+
+        // 导出adb-pull
+        binder.exportApkPath.setOnClickListener {
+            // get "ro.serialno" err ...
+            share(context, "adb pull ${data.apkPath}")
+        }
 
         // 设置
         binder.settingsBtn.setOnClickListener {
@@ -96,6 +117,21 @@ class AppInfoDetailDialog(context: Context, data: AppInfo) {
 
         alertDialog = AlertDialog.Builder(context).setCancelable(true).setView(binder.root).create()
         alertDialog.show()
+    }
+
+    /**
+     * 调用系统分享
+     */
+    private fun share(context: Context, adbCmdStr: String? = null, apkFileUri: Uri? = null) {
+        val intent = Intent(Intent.ACTION_SEND)
+        if (adbCmdStr != null) {
+            intent.putExtra(Intent.EXTRA_TEXT, adbCmdStr)
+            intent.type = "text/plain"
+        } else if (apkFileUri != null) {
+            intent.putExtra(Intent.EXTRA_STREAM, apkFileUri)
+            intent.type = "*/*"
+        }
+        context.startActivity(Intent.createChooser(intent, "发送至..."))
     }
 
 }

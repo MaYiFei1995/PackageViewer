@@ -7,6 +7,9 @@ import android.graphics.drawable.Drawable
 import android.os.Build
 import com.mai.packageviewer.App
 import com.mai.packageviewer.view.MainMenu
+import java.io.File
+import java.math.RoundingMode
+import java.text.DecimalFormat
 
 
 class AppInfo(packageInfo: PackageInfo) {
@@ -102,6 +105,21 @@ class AppInfo(packageInfo: PackageInfo) {
      * icon
      */
     var iconDrawable: Drawable? = null
+
+    /**
+     * base.apk path
+     */
+    val apkPath: String = packageInfo.applicationInfo.publicSourceDir
+
+    /**
+     * base.apk size
+     */
+    val apkSize: String
+        get() {
+            val decimalFormat = DecimalFormat("######0.00 MB")
+            decimalFormat.roundingMode = RoundingMode.FLOOR
+            return decimalFormat.format(File(apkPath).length() / (1024 * 1024f))
+        }
 
     init {
         val applicationInfo = packageInfo.applicationInfo

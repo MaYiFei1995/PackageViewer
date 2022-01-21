@@ -139,6 +139,8 @@ object AppInfoHelper {
         ret.add(BaseKVObject("SystemApp", "${this.isSystemApp}"))
         ret.add(BaseKVObject("TestOnly", "${this.isTestOnlyApp}"))
         ret.add(BaseKVObject("Game", "${this.isGameApp}"))
+        ret.add(BaseKVObject("ApkPath", this.apkPath))
+        ret.add(BaseKVObject("ApkSize", this.apkSize))
         return ret
     }
 

@@ -10,10 +10,33 @@
         android:id="@+id/appInfoDetailRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginBottom="48dp"
+        android:layout_marginBottom="96dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:listitem="@layout/item_app_info_detail" />
+
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/export_apk_file"
+        android:layout_width="0dp"
+        android:layout_height="48dp"
+        android:background="@color/purple_700"
+        android:text="导出apk"
+        android:textColor="@color/white"
+        app:layout_constraintBottom_toTopOf="@id/uninstallBtn"
+        app:layout_constraintEnd_toStartOf="@id/export_apk_path"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/export_apk_path"
+        android:layout_width="0dp"
+        android:layout_height="48dp"
+        android:background="@color/purple_500"
+        android:text="导出adb pull"
+        android:textColor="@color/white"
+        app:layout_constraintBottom_toTopOf="@id/uninstallBtn"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/export_apk_file" />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/settingsBtn"
