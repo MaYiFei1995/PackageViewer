@@ -141,6 +141,7 @@ object AppInfoHelper {
         ret.add(BaseKVObject("Game", "${this.isGameApp}"))
         ret.add(BaseKVObject("ApkPath", this.apkPath))
         ret.add(BaseKVObject("ApkSize", this.apkSize))
+        ret.add(BaseKVObject("加固/框架(测试)", this.apkSocketAndPlat))
         return ret
     }
 

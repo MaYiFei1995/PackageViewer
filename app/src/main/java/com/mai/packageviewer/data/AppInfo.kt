@@ -121,6 +121,33 @@ class AppInfo(packageInfo: PackageInfo) {
             return decimalFormat.format(File(apkPath).length() / (1024 * 1024f))
         }
 
+    /**
+     * 加固/框架判断
+     */
+    val apkSocketAndPlat: String
+        get() {
+            return when (className) {
+                "com.stub.StubApp" ->
+                    "360加固"
+                "s.h.e.l.l.S" ->
+                    "爱加密"
+                "$packageName.MyWrapperProxyApplication" ->
+                    "腾讯加固"
+                "com.baidu.protect.StubApplication", "com.sagittarius.v6.StubApplication" ->
+                    "百度加固"
+                "com.secneo.apkwrapper.ApplicationWrapper", "com.secneo.apkwrapper.AW", "com.SecShell.SecShell.AW" ->
+                    "梆梆加固"
+                "com.uzmap.pkg.uzapp.UZApplication" ->
+                    "ApiCloud"
+                "io.dcloud.application.DCloudApplication" ->
+                    "DCloud"
+                "com.lt.app.App" ->
+                    "一门"
+                else ->
+                    "未知"
+            }
+        }
+
     init {
         val applicationInfo = packageInfo.applicationInfo
         // 耗时操作
