@@ -57,6 +57,6 @@ object SignatureUtil {
             }
             stringBuffer.append(temp)
         }
-        return stringBuffer.toString()
+        return stringBuffer.toString().uppercase()
     }
 }

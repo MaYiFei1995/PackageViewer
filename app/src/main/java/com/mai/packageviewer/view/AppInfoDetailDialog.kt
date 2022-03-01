@@ -23,7 +23,7 @@ import java.io.File
 /**
  * 详情页Dialog
  */
-class AppInfoDetailDialog(context: Context, data: AppInfo) {
+class AppInfoDetailDialog(val context: Context, data: AppInfo) {
 
     init {
         var alertDialog: AlertDialog? = null
@@ -41,7 +41,7 @@ class AppInfoDetailDialog(context: Context, data: AppInfo) {
                 outRect.set(0, 1, 0, 1)
             }
         })
-        binder.appInfoDetailRecyclerView.adapter = AppInfoDetailAdapter(data.toDetailList())
+        binder.appInfoDetailRecyclerView.adapter = AppInfoDetailAdapter(data.toDetailList(), this)
         // 通过AlertDialog实现
 
         // 导出apk-file
@@ -122,7 +122,7 @@ class AppInfoDetailDialog(context: Context, data: AppInfo) {
     /**
      * 调用系统分享
      */
-    private fun share(context: Context, adbCmdStr: String? = null, apkFileUri: Uri? = null) {
+    fun share(context: Context, adbCmdStr: String? = null, apkFileUri: Uri? = null) {
         val intent = Intent(Intent.ACTION_SEND)
         if (adbCmdStr != null) {
             intent.putExtra(Intent.EXTRA_TEXT, adbCmdStr)
