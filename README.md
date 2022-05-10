@@ -26,6 +26,8 @@
 
 - 通过 ApplicationID 判断加固、打包平台 （测试）
 
+- 通过 nativeLib 判断是否包含 Flutter | RN 
+
 ## Feature
 
 - 打印签名信息 （唯二有用的功能）

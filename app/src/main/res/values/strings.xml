@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">PackageViewer</string>
-    <string name="options">选项</string>
+    <string name="filter_pref">筛选属性</string>
+    <string name="filter_plat">筛选框架</string>
     <string name="other">其它</string>
     <string name="search">搜索</string>
     <string name="orderBy">排序</string>
@@ -11,6 +12,12 @@
     <string name="showDebug">显示debug</string>
     <string name="showTestOnly">显示testOnly</string>
     <string name="showGame">显示游戏APP</string>
+    <string name="showApiCloud">显示ApiCloud</string>
+    <string name="showDCloud">显示DCloud</string>
+    <string name="showYiMen">显示一门</string>
+    <string name="showFlutter">显示Flutter</string>
+    <string name="showRN">显示RN</string>
+    <string name="showAll">全部框架</string>
     <string name="fastMode">快速模式(不加载icon)</string>
     <string name="about">关于</string>
 </resources>

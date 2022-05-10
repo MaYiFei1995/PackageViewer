@@ -124,7 +124,7 @@ class AppInfo(packageInfo: PackageInfo) {
     /**
      * 加固/框架判断
      */
-    val apkSocketAndPlat: String
+    val apkShellAndPlat: String
         get() {
             return when (className) {
                 "com.stub.StubApp" ->
@@ -148,6 +148,11 @@ class AppInfo(packageInfo: PackageInfo) {
             }
         }
 
+    /**
+     * App开发平台判断
+     */
+    var devLang: String = "未知"
+
     init {
         val applicationInfo = packageInfo.applicationInfo
         // 耗时操作
@@ -156,5 +161,32 @@ class AppInfo(packageInfo: PackageInfo) {
         if (!MainMenu.initFastMode) {
             iconDrawable = applicationInfo.loadIcon(App.app.packageManager)
         }
+
+        val nativeLibraryDir = applicationInfo.nativeLibraryDir
+        if (nativeLibraryDir != null) {
+            val libDirPath = File(nativeLibraryDir)
+            if (libDirPath.exists()) {
+                run getDevLanguage@{
+                    val walk = libDirPath.walk()
+                    walk.maxDepth(2)
+                        .filter {
+                            it.isFile && it.extension == "so"
+                        }
+                        .forEach {
+                            when (it.nameWithoutExtension) {
+                                "libflutter" -> {
+                                    devLang = "Flutter"
+                                    return@getDevLanguage
+                                }
+                                "libreactnativejni" -> {
+                                    devLang = "RN"
+                                    return@getDevLanguage
+                                }
+                            }
+                        }
+                }
+            }
+        }
+
     }
 }

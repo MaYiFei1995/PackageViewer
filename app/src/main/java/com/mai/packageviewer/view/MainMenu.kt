@@ -18,7 +18,6 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.SearchView
 import androidx.core.content.ContextCompat
 import androidx.core.view.forEach
-import com.google.android.material.snackbar.Snackbar
 import com.mai.packageviewer.App
 import com.mai.packageviewer.R
 import com.mai.packageviewer.setting.MainSettings
@@ -45,7 +44,11 @@ class MainMenu(val menu: Menu, val activity: Activity) {
     var showTestOnlyApp = true
     var showGameApp = true
 
-    companion object{
+    // 框架筛选
+    var platFilter: String =
+        MainSettings.INSTANCE.getString(MainSettings.SHOW_APPS_PLAT, MainSettings.SHOW_ALL_APPS)
+
+    companion object {
         // 快速模式
         var initFastMode = MainSettings.INSTANCE.getBool(MainSettings.INIT_FAST_MODE, false)
     }
@@ -101,7 +104,36 @@ class MainMenu(val menu: Menu, val activity: Activity) {
                     it.isChecked = MainSettings.INSTANCE.getBool(MainSettings.SHOW_GAME_APP, true)
                     showGameApp = it.isChecked
                 }
-                R.id.fast_mode ->{
+
+                R.id.show_all_app -> {
+                    it.isChecked = platFilter == MainSettings.SHOW_APPS_PLAT
+                }
+                R.id.show_api_cloud_app -> {
+                    if (platFilter == MainSettings.SHOW_API_CLOUD_APPS) {
+                        it.isChecked = true
+                    }
+                }
+                R.id.show_dcloud_app -> {
+                    if (platFilter == MainSettings.SHOW_DCLOUD_APPS) {
+                        it.isChecked = true
+                    }
+                }
+                R.id.show_yimen_app -> {
+                    if (platFilter == MainSettings.SHOW_YI_MEN_APPS) {
+                        it.isChecked = true
+                    }
+                }
+                R.id.show_flutter_app -> {
+                    if (platFilter == MainSettings.SHOW_FLUTTER_APPS) {
+                        it.isChecked = true
+                    }
+                }
+                R.id.show_rn_app -> {
+                    if (platFilter == MainSettings.SHOW_RN_APPS) {
+                        it.isChecked = true
+                    }
+                }
+                R.id.fast_mode -> {
                     it.isChecked = MainSettings.INSTANCE.getBool(MainSettings.INIT_FAST_MODE, false)
                     initFastMode = it.isChecked
                 }
@@ -188,6 +220,60 @@ class MainMenu(val menu: Menu, val activity: Activity) {
                 showGameApp = b
                 mainMenuListener?.onIncludeGameApp(b)
             }
+            R.id.show_all_app -> {
+                item.isChecked = true
+                MainSettings.INSTANCE.setString(
+                    MainSettings.SHOW_APPS_PLAT,
+                    MainSettings.SHOW_ALL_APPS
+                )
+                platFilter = MainSettings.SHOW_ALL_APPS
+                mainMenuListener?.onPlatFilterChange()
+            }
+            R.id.show_api_cloud_app -> {
+                item.isChecked = true
+                MainSettings.INSTANCE.setString(
+                    MainSettings.SHOW_APPS_PLAT,
+                    MainSettings.SHOW_API_CLOUD_APPS
+                )
+                platFilter = MainSettings.SHOW_API_CLOUD_APPS
+                mainMenuListener?.onPlatFilterChange()
+            }
+            R.id.show_dcloud_app -> {
+                item.isChecked = true
+                MainSettings.INSTANCE.setString(
+                    MainSettings.SHOW_APPS_PLAT,
+                    MainSettings.SHOW_DCLOUD_APPS
+                )
+                platFilter = MainSettings.SHOW_DCLOUD_APPS
+                mainMenuListener?.onPlatFilterChange()
+            }
+            R.id.show_yimen_app -> {
+                item.isChecked = true
+                MainSettings.INSTANCE.setString(
+                    MainSettings.SHOW_APPS_PLAT,
+                    MainSettings.SHOW_YI_MEN_APPS
+                )
+                platFilter = MainSettings.SHOW_YI_MEN_APPS
+                mainMenuListener?.onPlatFilterChange()
+            }
+            R.id.show_flutter_app -> {
+                item.isChecked = true
+                MainSettings.INSTANCE.setString(
+                    MainSettings.SHOW_APPS_PLAT,
+                    MainSettings.SHOW_FLUTTER_APPS
+                )
+                platFilter = MainSettings.SHOW_FLUTTER_APPS
+                mainMenuListener?.onPlatFilterChange()
+            }
+            R.id.show_rn_app -> {
+                item.isChecked = true
+                MainSettings.INSTANCE.setString(
+                    MainSettings.SHOW_APPS_PLAT,
+                    MainSettings.SHOW_RN_APPS
+                )
+                platFilter = MainSettings.SHOW_RN_APPS
+                mainMenuListener?.onPlatFilterChange()
+            }
             R.id.fast_mode -> {
                 val b = !item.isChecked
                 item.isChecked = b
@@ -261,11 +347,18 @@ class MainMenu(val menu: Menu, val activity: Activity) {
 
     interface MainMenuListener {
         fun onOrderChanged(orderByName: Boolean)
+
+        // 属性过滤
         fun onIncludeSystemApp(includeSystemApp: Boolean)
         fun onIncludeReleaseApp(includeReleaseApp: Boolean)
         fun onIncludeDebugApp(includeDebugApp: Boolean)
         fun onIncludeTestOnlyApp(includeTestOnlyApp: Boolean)
         fun onIncludeGameApp(includeGameApp: Boolean)
+
+        // 框架过滤
+        fun onPlatFilterChange()
+
+        // 文字变化
         fun onQueryTextChange(newText: String)
     }
 

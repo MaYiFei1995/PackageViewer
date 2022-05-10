@@ -28,10 +28,10 @@
 
     <item
         android:id="@id/menuTitle"
-        android:title="@string/options"
+        android:title="@string/filter_pref"
         app:showAsAction="never" />
     <group
-        android:id="@+id/menu_group_filters"
+        android:id="@+id/menu_group_filter_pref"
         android:checkableBehavior="all"
         app:showAsAction="never">
         <item
@@ -70,6 +70,46 @@
 
     <item
         android:id="@id/menuTitle"
+        android:title="@string/filter_plat"
+        app:showAsAction="never" />
+    <group
+        android:id="@+id/menu_group_filter_plat"
+        android:checkableBehavior="single"
+        app:showAsAction="never">
+        <item
+            android:id="@+id/show_all_app"
+            android:checked="true"
+            android:title="@string/showAll"
+            app:showAsAction="never" />
+        <item
+            android:id="@+id/show_api_cloud_app"
+            android:title="@string/showApiCloud"
+            android:checked="false"
+            app:showAsAction="never" />
+        <item
+            android:id="@+id/show_dcloud_app"
+            android:title="@string/showDCloud"
+            android:checked="false"
+            app:showAsAction="never" />
+        <item
+            android:id="@+id/show_yimen_app"
+            android:title="@string/showYiMen"
+            android:checked="false"
+            app:showAsAction="never" />
+        <item
+            android:id="@+id/show_flutter_app"
+            android:title="@string/showFlutter"
+            android:checked="false"
+            app:showAsAction="never" />
+        <item
+            android:id="@+id/show_rn_app"
+            android:title="@string/showRN"
+            android:checked="false"
+            app:showAsAction="never" />
+    </group>
+
+    <item
+        android:id="@id/menuTitle"
         android:title="@string/other"
         app:showAsAction="never" />
 
@@ -79,7 +119,7 @@
             android:checkable="true"
             android:checked="false"
             android:title="@string/fastMode"
-            app:showAsAction="never"/>
+            app:showAsAction="never" />
         <item
             android:id="@+id/menu_about"
             android:title="@string/about"

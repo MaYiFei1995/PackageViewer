@@ -8,7 +8,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
-import android.util.Log
 import android.view.KeyEvent
 import android.view.Menu
 import android.view.MenuItem
@@ -29,6 +28,7 @@ import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.math.min
 import android.content.Intent
+import com.mai.packageviewer.setting.MainSettings
 
 
 class MainActivity : AppCompatActivity() {
@@ -159,39 +159,50 @@ class MainActivity : AppCompatActivity() {
             if (!sortOnly) {
                 appInfoFilterList.clear()
                 // 重新过滤
-                appInfoFilterList.addAll(appInfoList.filterNot {
-                    it.packageName == BuildConfig.APPLICATION_ID
-                            || (!mainMenu.showSystemApp && it.isSystemApp)
-                            || (!mainMenu.showReleaseApp && !it.isDebugApp)
-                            || (!mainMenu.showDebugApp && it.isDebugApp)
-                            || (!mainMenu.showTestOnlyApp && it.isTestOnlyApp)
-                            || (!mainMenu.showGameApp && it.isGameApp)
-                })
+                appInfoFilterList.addAll(
+                    appInfoList.filterNot {
+                        it.packageName == BuildConfig.APPLICATION_ID
+                                || (!mainMenu.showSystemApp && it.isSystemApp)
+                                || (!mainMenu.showReleaseApp && !it.isDebugApp)
+                                || (!mainMenu.showDebugApp && it.isDebugApp)
+                                || (!mainMenu.showTestOnlyApp && it.isTestOnlyApp)
+                                || (!mainMenu.showGameApp && it.isGameApp)
+                    }.filter {
+                        when (mainMenu.platFilter) {
+                            MainSettings.SHOW_ALL_APPS -> true
+                            MainSettings.SHOW_API_CLOUD_APPS -> it.apkShellAndPlat.contains("ApiCloud")
+                            MainSettings.SHOW_DCLOUD_APPS -> it.apkShellAndPlat.contains("DCloud")
+                            MainSettings.SHOW_YI_MEN_APPS -> it.apkShellAndPlat.contains("一门")
+                            MainSettings.SHOW_FLUTTER_APPS -> it.devLang.contains("Flutter")
+                            MainSettings.SHOW_RN_APPS -> it.devLang.contains("RN")
+                            else -> false
+                        }
+                    })
             }
 
             // 排序
             if (mainMenu.orderByName) {
                 appInfoFilterList.sortWith { lh, rh ->
-                    val charL = lh.label[0].toLowerCase()
-                    val charR = rh.label[0].toLowerCase()
+                    val charL = lh.label[0].lowercaseChar()
+                    val charR = rh.label[0].lowercaseChar()
                     val strL = if (charL.isLowerCase() || charL.isDigit()) {
                         // label为字母
-                        lh.label.toLowerCase(Locale.getDefault()).toCharArray()
+                        lh.label.lowercase(Locale.getDefault()).toCharArray()
                     } else {
                         // 首字拼音+读音，简单比较直接忽略错误
                         try {
                             PinyinHelper.toHanyuPinyinStringArray(charL)[0].toCharArray()
                         } catch (e: Exception) {
-                            lh.label.toLowerCase(Locale.getDefault()).toCharArray()
+                            lh.label.lowercase(Locale.getDefault()).toCharArray()
                         }
                     }
                     val strR = if (charR.isLowerCase() || charR.isDigit()) {
-                        rh.label.toLowerCase(Locale.getDefault()).toCharArray()
+                        rh.label.lowercase(Locale.getDefault()).toCharArray()
                     } else {
                         try {
                             PinyinHelper.toHanyuPinyinStringArray(charR)[0].toCharArray()
                         } catch (e: Exception) {
-                            rh.label.toLowerCase(Locale.getDefault()).toCharArray()
+                            rh.label.lowercase(Locale.getDefault()).toCharArray()
                         }
                     }
 
@@ -199,7 +210,7 @@ class MainActivity : AppCompatActivity() {
                     for (i in 0 until min(strL.size, strR.size)) {
                         if (strL[i] != strR[i]) {
                             // 继续比较下一位
-                            val num = strL[i].toInt() - strR[i].toInt()
+                            val num = strL[i].code - strR[i].code
                             result = when {
                                 num > 0 -> 1
                                 num == 0 -> 0
@@ -257,6 +268,10 @@ class MainActivity : AppCompatActivity() {
                 onOptionsChanged()
             }
 
+            override fun onPlatFilterChange() {
+                onOptionsChanged()
+            }
+
             override fun onQueryTextChange(newText: String) {
                 // 搜索
                 appAdapter.filter.filter(newText)
@@ -271,13 +286,13 @@ class MainActivity : AppCompatActivity() {
     private fun showLoading() {
         binder.loadingView.visibility = View.VISIBLE
         mainMenu.menu.setGroupEnabled(R.id.menu_group_sort, false)
-        mainMenu.menu.setGroupEnabled(R.id.menu_group_filters, false)
+        mainMenu.menu.setGroupEnabled(R.id.menu_group_filter_pref, false)
     }
 
     private fun hideLoading() {
         binder.loadingView.visibility = View.GONE
         mainMenu.menu.setGroupEnabled(R.id.menu_group_sort, true)
-        mainMenu.menu.setGroupEnabled(R.id.menu_group_filters, true)
+        mainMenu.menu.setGroupEnabled(R.id.menu_group_filter_pref, true)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
