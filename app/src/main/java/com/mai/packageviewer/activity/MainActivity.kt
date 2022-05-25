@@ -20,15 +20,13 @@ import com.mai.packageviewer.R
 import com.mai.packageviewer.adapter.AppAdapter
 import com.mai.packageviewer.data.AppInfo
 import com.mai.packageviewer.databinding.ActivityMainBinding
+import com.mai.packageviewer.setting.MainSettings
 import com.mai.packageviewer.util.AppInfoHelper
 import com.mai.packageviewer.util.PackageReceiver
 import com.mai.packageviewer.view.MainMenu
 import net.sourceforge.pinyin4j.PinyinHelper
 import java.util.*
-import kotlin.collections.ArrayList
 import kotlin.math.min
-import android.content.Intent
-import com.mai.packageviewer.setting.MainSettings
 
 
 class MainActivity : AppCompatActivity() {
@@ -68,7 +66,6 @@ class MainActivity : AppCompatActivity() {
             addAction(Intent.ACTION_PACKAGE_REMOVED)
             addAction(Intent.ACTION_PACKAGE_REPLACED)
         })
-
     }
 
     override fun onPause() {
@@ -98,8 +95,8 @@ class MainActivity : AppCompatActivity() {
     private val installedPackages: MutableList<PackageInfo>
         get() {
             val flags =
-                PackageManager.GET_META_DATA or (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
-                    PackageManager.GET_SIGNING_CERTIFICATES else PackageManager.GET_SIGNATURES)
+                PackageManager.GET_META_DATA or ((if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
+                    PackageManager.GET_SIGNING_CERTIFICATES else PackageManager.GET_SIGNATURES)) or PackageManager.GET_PROVIDERS or PackageManager.GET_ACTIVITIES or PackageManager.GET_SERVICES or PackageManager.GET_RECEIVERS
             return packageManager.getInstalledPackages(flags)
         }
 

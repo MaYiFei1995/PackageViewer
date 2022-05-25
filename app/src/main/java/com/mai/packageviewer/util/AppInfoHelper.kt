@@ -143,6 +143,11 @@ object AppInfoHelper {
         ret.add(BaseKVObject("ApkSize", this.apkSize))
         ret.add(BaseKVObject("加固/框架(测试)", this.apkShellAndPlat))
         ret.add(BaseKVObject("包含框架", this.devLang))
+
+        if (this.sdkInfo.isNotEmpty() && this.sdkInfo.length > 5) {
+            ret.add(BaseKVObject("SDK分析(测试)", this.sdkInfo))
+        }
+
         return ret
     }
 
