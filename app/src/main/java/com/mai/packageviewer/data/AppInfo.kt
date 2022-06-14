@@ -7,7 +7,7 @@ import android.graphics.drawable.Drawable
 import android.os.Build
 import com.mai.packageviewer.App
 import com.mai.packageviewer.view.MainMenu
-import com.mai.packageviewer.x.SDKAnalyzer.parseSdk
+import com.mai.packageviewer.x.SDKAnalyzerImpl.Companion.parseSdk
 import java.io.File
 import java.math.RoundingMode
 import java.text.DecimalFormat
