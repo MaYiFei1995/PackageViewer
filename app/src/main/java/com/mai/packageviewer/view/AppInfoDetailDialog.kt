@@ -14,6 +14,7 @@ import androidx.core.content.FileProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.mai.packageviewer.BuildConfig
+import com.mai.packageviewer.activity.MainActivity
 import com.mai.packageviewer.adapter.AppInfoDetailAdapter
 import com.mai.packageviewer.data.AppInfo
 import com.mai.packageviewer.databinding.DialogAppinfoDetailBinding
@@ -25,8 +26,9 @@ import java.io.File
  */
 class AppInfoDetailDialog(val context: Context, data: AppInfo) {
 
+    private var alertDialog: AlertDialog
+
     init {
-        var alertDialog: AlertDialog? = null
         val binder = DialogAppinfoDetailBinding.inflate(LayoutInflater.from(context))
         binder.appInfoDetailRecyclerView.layoutManager = LinearLayoutManager(context)
         // 添加位移，通过background实现分割线效果
@@ -89,7 +91,7 @@ class AppInfoDetailDialog(val context: Context, data: AppInfo) {
                 if (resolveInfo.size > 0) {
                     context.startActivity(intent)
                 }
-                alertDialog?.dismiss()
+                dismiss()
             } catch (e: Exception) {
                 e.printStackTrace()
                 Toast.makeText(context, "拉起失败", Toast.LENGTH_SHORT).show()
@@ -106,7 +108,7 @@ class AppInfoDetailDialog(val context: Context, data: AppInfo) {
                         Intent().setAction(Intent.ACTION_UNINSTALL_PACKAGE)
                             .setData(Uri.parse("package:${data.packageName}"))
                     )
-                    alertDialog?.dismiss()
+                    dismiss()
                 } catch (e: Exception) {
                     e.printStackTrace()
                     Toast.makeText(context, "卸载失败", Toast.LENGTH_SHORT).show()
@@ -115,8 +117,24 @@ class AppInfoDetailDialog(val context: Context, data: AppInfo) {
             }
         }
 
-        alertDialog = AlertDialog.Builder(context).setCancelable(true).setView(binder.root).create()
+        alertDialog = AlertDialog.Builder(context).setCancelable(true).setView(binder.root)
+            .setOnCancelListener { MainActivity.dialogList = null }.create()
         alertDialog.show()
+
+        MainActivity.dialogList = this
+    }
+
+    fun isShowing(): Boolean {
+        return alertDialog.isShowing
+    }
+
+    fun dismiss() {
+        try {
+            MainActivity.dialogList = null
+            alertDialog.dismiss()
+        } catch (t: Throwable) {
+            t.printStackTrace()
+        }
     }
 
     /**

@@ -1,12 +1,15 @@
 package com.mai.packageviewer.activity
 
 import android.annotation.SuppressLint
-import android.content.*
+import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.provider.Settings
 import android.view.KeyEvent
 import android.view.Menu
@@ -23,6 +26,7 @@ import com.mai.packageviewer.databinding.ActivityMainBinding
 import com.mai.packageviewer.setting.MainSettings
 import com.mai.packageviewer.util.AppInfoHelper
 import com.mai.packageviewer.util.PackageReceiver
+import com.mai.packageviewer.view.AppInfoDetailDialog
 import com.mai.packageviewer.view.MainMenu
 import net.sourceforge.pinyin4j.PinyinHelper
 import java.util.*
@@ -30,6 +34,12 @@ import kotlin.math.min
 
 
 class MainActivity : AppCompatActivity() {
+
+    companion object {
+        @SuppressLint("StaticFieldLeak")
+        var dialogList: AppInfoDetailDialog? = null
+    }
+
     private lateinit var binder: ActivityMainBinding
     private lateinit var mainMenu: MainMenu
 
@@ -69,8 +79,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onPause() {
-        super.onPause()
         isPause = true
+
+        if (dialogList?.isShowing() == true) {
+            dialogList?.dismiss()
+        }
+
+        super.onPause()
     }
 
     /**
@@ -92,58 +107,62 @@ class MainActivity : AppCompatActivity() {
         binder.recycler.adapter = appAdapter
     }
 
-    private val installedPackages: MutableList<PackageInfo>
-        get() {
+    private fun getInstallPackages(callback: (MutableList<PackageInfo>) -> Unit) {
+        Thread {
             val flags =
                 PackageManager.GET_META_DATA or ((if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
                     PackageManager.GET_SIGNING_CERTIFICATES else PackageManager.GET_SIGNATURES)) or PackageManager.GET_PROVIDERS or PackageManager.GET_ACTIVITIES or PackageManager.GET_SERVICES or PackageManager.GET_RECEIVERS
-            return packageManager.getInstalledPackages(flags)
-        }
+            val installedPackages = packageManager.getInstalledPackages(flags)
+            Handler(Looper.getMainLooper()).post {
+                callback(installedPackages)
+            }
+        }.start()
+    }
 
     /**
      * 获取并筛选app
      */
     private fun onDataSetChanged() {
-        val packages = installedPackages
-        if (packages.size < 15) {
-            Snackbar.make(binder.root, "无法获取应用列表，请检查权限", Snackbar.LENGTH_INDEFINITE)
-                .setAction("去授权") {
-                    try {
-                        val intent = Intent().setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.O) {
-                            intent.action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
-                            intent.data = Uri.fromParts("package", packageName, null)
-                        } else {
-                            intent.action = Intent.ACTION_VIEW
-                            intent.setClassName(
-                                "com.android.settings",
-                                "com.android.setting.InstalledAppDetails"
-                            )
-                            intent.putExtra(
-                                "com.android.settings.ApplicationPkgName",
-                                packageName
-                            )
-                        }
-                        startActivity(intent)
-                    } catch (e: Exception) {
-                        Snackbar.make(binder.root, "请手动开启获取应用列表权限", Snackbar.LENGTH_LONG)
-                            .show()
-                    }
-                }
-                .show()
-        }
-
         showLoading()
-
-        AppInfoHelper.handle(packages, object : AppInfoHelper.AppInfoCallback {
-            override fun onResult(ret: Vector<MutableList<AppInfo>>) {
-                appInfoList.clear()
-                ret.forEach {
-                    appInfoList.addAll(it)
-                }
-                onOptionsChanged()
+        getInstallPackages { packages ->
+            if (packages.size < 15) {
+                Snackbar.make(binder.root, "无法获取应用列表，请检查权限", Snackbar.LENGTH_INDEFINITE)
+                    .setAction("去授权") {
+                        try {
+                            val intent = Intent().setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.O) {
+                                intent.action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+                                intent.data = Uri.fromParts("package", packageName, null)
+                            } else {
+                                intent.action = Intent.ACTION_VIEW
+                                intent.setClassName(
+                                    "com.android.settings",
+                                    "com.android.setting.InstalledAppDetails"
+                                )
+                                intent.putExtra(
+                                    "com.android.settings.ApplicationPkgName",
+                                    packageName
+                                )
+                            }
+                            startActivity(intent)
+                        } catch (e: Exception) {
+                            Snackbar.make(binder.root, "请手动开启获取应用列表权限", Snackbar.LENGTH_LONG)
+                                .show()
+                        }
+                    }
+                    .show()
             }
-        }, packages.size / 60 + 1)
+
+            AppInfoHelper.handle(packages, object : AppInfoHelper.AppInfoCallback {
+                override fun onResult(ret: Vector<MutableList<AppInfo>>) {
+                    appInfoList.clear()
+                    ret.forEach {
+                        appInfoList.addAll(it)
+                    }
+                    onOptionsChanged()
+                }
+            }, packages.size / 60 + 1)
+        }
     }
 
     /**
