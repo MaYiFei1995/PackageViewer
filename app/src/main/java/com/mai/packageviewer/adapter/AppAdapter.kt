@@ -59,11 +59,16 @@ class AppAdapter(data: MutableList<AppInfo>) :
                     results.count = rawData.size
                 } else {
                     // 处理输入的文本
-                    val prefixString = constraint.toString().trim().toLowerCase(Locale.getDefault())
+                    val prefixString = constraint.toString().trim().lowercase(Locale.getDefault())
                     val filter = rawData.filter {
                         // 包名或label匹配，可以增加拼音匹配
-                        (it.packageName.contains(prefixString) || it.label.toLowerCase(Locale.getDefault())
-                            .contains(prefixString))
+                        (it.packageName.contains(prefixString)
+                                || it.label.lowercase(Locale.getDefault()).contains(prefixString)
+                                ||
+                                (prefixString.contains("@")
+                                        && it.sdkInfo.lowercase().contains(
+                                    prefixString.replace("@", "")
+                                )))
                     }
                     results.values = filter
                     results.count = filter.size
