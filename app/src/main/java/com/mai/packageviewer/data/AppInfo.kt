@@ -138,6 +138,8 @@ class AppInfo(packageInfo: PackageInfo) {
                     "百度加固"
                 "com.secneo.apkwrapper.ApplicationWrapper", "com.secneo.apkwrapper.AW", "com.SecShell.SecShell.AW" ->
                     "梆梆加固"
+                "com.ali.mobisecenhance.ld.StubApplication" ->
+                    "阿里加固"
                 "com.uzmap.pkg.uzapp.UZApplication" ->
                     "ApiCloud"
                 "io.dcloud.application.DCloudApplication" ->
