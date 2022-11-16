@@ -9,6 +9,7 @@ import com.mai.packageviewer.App
 import com.mai.packageviewer.view.MainMenu
 import com.mai.packageviewer.x.SDKAnalyzerImpl.Companion.parseSdk
 import java.io.File
+import java.lang.StringBuilder
 import java.math.RoundingMode
 import java.text.DecimalFormat
 
@@ -147,9 +148,28 @@ class AppInfo(packageInfo: PackageInfo) {
                 "com.lt.app.App" ->
                     "一门"
                 else ->
-                    "未知"
+                    if (className != null && className.endsWith(".StubApp")) {
+                        if (is360Pro(className)) {
+                            "360高级加固"
+                        } else {
+                            "未知加固"
+                        }
+                    } else {
+                        "未知"
+                    }
             }
         }
+
+    private fun is360Pro(appName: String) : Boolean {
+        val split = packageName.split(".")
+        val retSB = StringBuilder()
+        split.reversed().forEach {
+            if (it != "StubApp") {
+                retSB.append(it.reversed()).append(".")
+            }
+        }
+        return appName == retSB.append("StubApp").toString()
+    }
 
     /**
      * App开发平台判断
