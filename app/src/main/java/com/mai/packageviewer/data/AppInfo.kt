@@ -141,6 +141,12 @@ class AppInfo(packageInfo: PackageInfo) {
                     "梆梆加固"
                 "com.ali.mobisecenhance.ld.StubApplication" ->
                     "阿里加固"
+                "arm.StubApp" ->
+                    "Arm加固"
+                "com.mx.dA.dpa", "com.manxi.shell.MXApplication" ->
+                    "蛮犀加固"
+                "cn.beingyi.sub.apps.SubApp.SubApplication" ->
+                    "随风加固"
                 "com.uzmap.pkg.uzapp.UZApplication" ->
                     "ApiCloud"
                 "io.dcloud.application.DCloudApplication" ->
@@ -154,13 +160,16 @@ class AppInfo(packageInfo: PackageInfo) {
                         } else {
                             "未知加固"
                         }
+                    } else if (className != null && className.startsWith("com.security.shell.AppStub")) {
+                        // com.security.shell.AppStub1 ???
+                        "顶象加固?"
                     } else {
                         "未知"
                     }
             }
         }
 
-    private fun is360Pro(appName: String) : Boolean {
+    private fun is360Pro(appName: String): Boolean {
         val split = packageName.split(".")
         val retSB = StringBuilder()
         split.reversed().forEach {
