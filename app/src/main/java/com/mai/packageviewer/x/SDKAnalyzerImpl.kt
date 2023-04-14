@@ -4,17 +4,19 @@ import android.content.pm.ActivityInfo
 import android.content.pm.PackageInfo
 import android.content.pm.ProviderInfo
 import android.content.pm.ServiceInfo
+import android.os.Bundle
 
 interface SDKAnalyzerImpl {
 
     companion object {
 
         fun PackageInfo.parseSdk(): String {
-            val instance = SDKAnalyzer1.instance
+            val instance = SDKAnalyzerAd.instance
             val ret = HashSet<String>()
             instance.providers(this.providers, ret)
             instance.activities(this.activities, ret)
             instance.services(this.services, ret)
+            instance.metaData(this.applicationInfo.metaData, ret)
             return ret.toString()
         }
 
@@ -26,5 +28,6 @@ interface SDKAnalyzerImpl {
 
     fun activities(activities: Array<ActivityInfo>?, ret: HashSet<String>)
 
+    fun metaData(metaData: Bundle?, ret: HashSet<String>) {}
 
 }
