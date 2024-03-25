@@ -6,6 +6,7 @@ import android.content.pm.Signature
 import android.graphics.drawable.Drawable
 import android.os.Build
 import com.mai.packageviewer.App
+import com.mai.packageviewer.util.AppInfoHelper.calculateMD5
 import com.mai.packageviewer.view.MainMenu
 import com.mai.packageviewer.x.SDKAnalyzerImpl.Companion.parseSdk
 import java.io.File
@@ -121,6 +122,14 @@ class AppInfo(packageInfo: PackageInfo) {
             val decimalFormat = DecimalFormat("######0.00 MB")
             decimalFormat.roundingMode = RoundingMode.FLOOR
             return decimalFormat.format(File(apkPath).length() / (1024 * 1024f))
+        }
+
+    /**
+     * APK文件的MD5
+     */
+    val apkFileMd5: String
+        get() {
+            return File(apkPath).calculateMD5()
         }
 
     /**

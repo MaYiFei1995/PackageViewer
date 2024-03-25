@@ -3,10 +3,13 @@ package com.mai.packageviewer.util
 import android.content.pm.PackageInfo
 import com.mai.packageviewer.data.AppInfo
 import com.mai.packageviewer.data.BaseKVObject
+import java.io.File
+import java.io.FileInputStream
+import java.math.BigInteger
+import java.security.MessageDigest
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
-import kotlin.collections.ArrayList
 
 /**
  * 通过多线程处理App信息的初始化
@@ -141,6 +144,7 @@ object AppInfoHelper {
         ret.add(BaseKVObject("Game", "${this.isGameApp}"))
         ret.add(BaseKVObject("ApkPath", this.apkPath))
         ret.add(BaseKVObject("ApkSize", this.apkSize))
+        ret.add(BaseKVObject("ApkMD5", this.apkFileMd5))
         ret.add(BaseKVObject("加固/框架(测试)", this.apkShellAndPlat))
         ret.add(BaseKVObject("包含框架", this.devLang))
 
@@ -149,6 +153,23 @@ object AppInfoHelper {
         }
 
         return ret
+    }
+
+    fun File.calculateMD5(): String {
+        return try {
+            val buffer = ByteArray(4 * 1024)
+            var len: Int
+            val md: MessageDigest = MessageDigest.getInstance("MD5")
+            val `is` = FileInputStream(this)
+            while (`is`.read(buffer, 0, 4 * 1024).also { len = it } != -1) {
+                md.update(buffer, 0, len)
+            }
+            `is`.close()
+            BigInteger(1, md.digest()).toString(16)
+        } catch (tr: Throwable) {
+            tr.printStackTrace()
+            ""
+        }
     }
 
 }
