@@ -49,14 +49,13 @@ class MainActivity : AppCompatActivity() {
 
     private var onBackPressedTimeStamp = System.currentTimeMillis()
 
-    private var isPause = false
-
     private var packageReceiver = PackageReceiver { _, intent ->
         if (intent.action != null) {
             when (intent.action) {
                 Intent.ACTION_PACKAGE_ADDED,
                 Intent.ACTION_PACKAGE_REMOVED,
-                Intent.ACTION_PACKAGE_REPLACED -> {
+                Intent.ACTION_PACKAGE_REPLACED,
+                -> {
                     if (!AppInfoHelper.isRunning)
                         onDataSetChanged()
                 }
@@ -79,27 +78,15 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onPause() {
-        isPause = true
-
         if (dialogList?.isShowing() == true) {
             dialogList?.dismiss()
         }
-
         super.onPause()
     }
 
-    /**
-     * 刷新应用列表
-     */
-    override fun onResume() {
-        super.onResume()
-        if (isPause && !AppInfoHelper.isRunning)
-            onDataSetChanged()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
+    override fun onStop() {
         unregisterReceiver(packageReceiver)
+        super.onStop()
     }
 
     private fun initRecyclerView() {
@@ -230,8 +217,7 @@ class MainActivity : AppCompatActivity() {
                             result = when {
                                 num > 0 -> 1
                                 num == 0 -> 0
-                                num < 0 -> -1
-                                else -> 1
+                                else -> -1
                             }
                             break
                         } else {
