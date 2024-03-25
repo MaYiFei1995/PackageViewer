@@ -2,6 +2,7 @@ package com.mai.packageviewer.adapter
 
 import android.annotation.SuppressLint
 import android.widget.*
+import com.bumptech.glide.Glide
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.mai.packageviewer.R
@@ -21,8 +22,11 @@ class AppAdapter(data: MutableList<AppInfo>) :
 
     override fun convert(holder: BaseViewHolder, item: AppInfo) {
         holder.setText(R.id.appName, item.label)
-        if (item.iconDrawable != null)
-            holder.setImageDrawable(R.id.icon, item.iconDrawable)
+        if (item.iconDrawable != null) {
+            (holder.getView(R.id.icon) as ImageView).let {
+                Glide.with(it).load(item.iconDrawable).into(it)
+            }
+        }
 
         holder.setText(R.id.packageName, item.packageName)
         holder.setText(R.id.version, item.versionName)
