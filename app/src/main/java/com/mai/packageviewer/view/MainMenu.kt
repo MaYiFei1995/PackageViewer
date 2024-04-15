@@ -312,6 +312,8 @@ class MainMenu(val menu: Menu, val activity: Activity) {
         val webView =
             LayoutInflater.from(activity).inflate(R.layout.dialog_about, null, false) as WebView
         webView.webViewClient = object : WebViewClient() {
+
+            @Deprecated("Deprecated in Java")
             override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
                 if (url != null)
                     if (url.startsWith("https://")) {
@@ -330,7 +332,7 @@ class MainMenu(val menu: Menu, val activity: Activity) {
 
             override fun shouldOverrideUrlLoading(
                 view: WebView?,
-                request: WebResourceRequest?
+                request: WebResourceRequest?,
             ): Boolean {
                 return shouldOverrideUrlLoading(view, request?.url.toString())
             }

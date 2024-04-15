@@ -11,7 +11,7 @@ interface SDKAnalyzerImpl {
     companion object {
 
         fun PackageInfo.parseSdk(): String {
-            val instance = SDKAnalyzerAd.instance
+            val instance = SDKAnalyzer1.instance
             val ret = HashSet<String>()
             instance.providers(this.providers, ret)
             instance.activities(this.activities, ret)
